@@ -20,7 +20,7 @@ function LogoFallback() {
 
 export function Hero() {
   return (
-    <section className="relative flex min-h-[100dvh] flex-col items-center justify-center overflow-hidden px-6 pt-24 pb-16 text-center md:px-10">
+    <section className="relative flex min-h-[100dvh] flex-col items-center justify-center overflow-hidden px-6 pt-20 pb-16 text-center md:px-10 md:pt-24">
       <div className="absolute inset-0 z-0">
         <HeroBackdrop />
       </div>
@@ -32,8 +32,7 @@ export function Hero() {
         }}
       />
       <div
-        className="pointer-events-none absolute inset-0 z-[2] mix-blend-screen"
-        style={{ filter: "brightness(1.6) contrast(1.15)" }}
+        className="pointer-events-none absolute inset-x-0 bottom-0 top-16 z-[2] opacity-100 mix-blend-screen md:inset-0 md:opacity-100 [filter:brightness(2.35)_contrast(1.35)_saturate(1.2)] md:[filter:brightness(1.6)_contrast(1.15)_saturate(1)]"
       >
         <LightRays
           raysOrigin="top-center"

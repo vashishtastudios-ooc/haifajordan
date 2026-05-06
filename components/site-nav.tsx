@@ -1,8 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { MediaImage } from "@/components/media-image";
-import { SITE_MEDIA } from "@/lib/site-media";
 
 const links = [
   { href: "#story", label: "Story" },
@@ -27,7 +25,7 @@ export function SiteNav() {
 
   return (
     <>
-      <header className="fixed top-0 right-0 left-0 z-50 border-b border-[rgba(196,128,106,0.12)] bg-[#080808]/90 px-6 py-4 backdrop-blur-md md:px-10">
+      <header className="fixed top-0 right-0 left-0 z-50 border-b border-[rgba(196,128,106,0.12)] bg-[#080808]/90 px-6 py-2.5 backdrop-blur-md md:px-10 md:py-4">
         <div className="flex items-center justify-between gap-4">
           <a
             href="#"
@@ -35,22 +33,6 @@ export function SiteNav() {
             onClick={() => setOpen(false)}
             aria-label="Haifa Live home"
           >
-            <span className="block h-[72px] w-[72px] overflow-hidden">
-              <MediaImage
-                candidates={SITE_MEDIA.logoCandidates}
-                alt="HaifaLive logo"
-                fill
-                sizes="72px"
-                priority
-                className="h-full w-full"
-                imgClassName="!object-contain"
-                fallback={
-                  <span className="flex h-full w-full items-center justify-center font-display text-xs text-[#E8C4B8] italic">
-                    HL
-                  </span>
-                }
-              />
-            </span>
             <span className="font-display text-lg tracking-tight text-[#F5F0EE] italic">
               Haifa<span className="text-[#E8C4B8] not-italic">Live</span>
             </span>
@@ -98,7 +80,7 @@ export function SiteNav() {
       {open ? (
         <div
           id="mobile-site-nav"
-          className="fixed inset-x-0 bottom-0 top-[4.5rem] z-40 flex flex-col bg-[#080808]/97 px-6 pt-6 pb-[max(1.5rem,env(safe-area-inset-bottom))] backdrop-blur-lg md:hidden"
+          className="fixed inset-x-0 bottom-0 top-16 z-40 flex flex-col bg-[#080808]/97 px-6 pt-6 pb-[max(1.5rem,env(safe-area-inset-bottom))] backdrop-blur-lg md:hidden"
           role="dialog"
           aria-modal="true"
           aria-label="Site menu"

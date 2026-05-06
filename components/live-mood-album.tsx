@@ -549,14 +549,6 @@ export function LiveMoodAlbum() {
               <p className="mb-2 text-[8px] font-semibold tracking-[0.28em] text-[#C4806A] uppercase">
                 Listen on
               </p>
-              <p className="mb-4 text-[12px] leading-relaxed text-[rgba(245,240,238,0.45)]">
-                Official store links go in{" "}
-                <span className="font-mono text-[11px] text-[#E8C4B8]">
-                  lib/the-mood-stream-links.ts
-                </span>{" "}
-                when the release is live. Until then, these open a search on each
-                platform.
-              </p>
               <div className="flex flex-wrap gap-3">
                 {getMoodStreamOutlets().map((o) => (
                   <a
