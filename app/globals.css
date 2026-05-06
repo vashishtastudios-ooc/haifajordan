@@ -1,0 +1,255 @@
+@import "tailwindcss";
+
+:root {
+  --rose: #c4806a;
+  --rose-light: #d4a090;
+  --rose-pale: #e8c4b8;
+  --copper: #a0604a;
+  --black: #080808;
+  --charcoal: #1c1918;
+  --off-white: #f5f0ee;
+  --muted: rgba(245, 240, 238, 0.5);
+}
+
+@theme inline {
+  --color-rose: var(--rose);
+  --color-rose-light: var(--rose-light);
+  --color-rose-pale: var(--rose-pale);
+  --color-copper: var(--copper);
+  --color-ink: var(--black);
+  --color-charcoal: var(--charcoal);
+  --color-cream: var(--off-white);
+}
+
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse-bar {
+  0%,
+  100% {
+    transform: scaleY(0.35);
+    opacity: 0.55;
+  }
+  50% {
+    transform: scaleY(1);
+    opacity: 1;
+  }
+}
+
+@keyframes live-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(196, 128, 106, 0.45);
+  }
+  50% {
+    box-shadow: 0 0 0 10px rgba(196, 128, 106, 0);
+  }
+}
+
+@keyframes vinyl-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes ticker {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes grain {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+  10% {
+    transform: translate(-2%, -2%);
+  }
+  20% {
+    transform: translate(2%, 1%);
+  }
+  30% {
+    transform: translate(-1%, 2%);
+  }
+  40% {
+    transform: translate(1%, -1%);
+  }
+  50% {
+    transform: translate(-2%, 1%);
+  }
+  60% {
+    transform: translate(2%, 2%);
+  }
+  70% {
+    transform: translate(0, -2%);
+  }
+  80% {
+    transform: translate(-1%, 1%);
+  }
+  90% {
+    transform: translate(1%, -2%);
+  }
+}
+
+.font-display {
+  font-family: var(--font-playfair), ui-serif, Georgia, serif;
+}
+
+.font-body {
+  font-family: var(--font-raleway), system-ui, sans-serif;
+}
+
+.animate-rise {
+  animation: rise-in 0.9s ease forwards;
+}
+
+.eq-bar {
+  transform-origin: bottom center;
+  animation: pulse-bar 0.55s ease-in-out infinite;
+}
+
+.eq-bar:nth-child(1) {
+  animation-delay: 0ms;
+}
+.eq-bar:nth-child(2) {
+  animation-delay: 80ms;
+}
+.eq-bar:nth-child(3) {
+  animation-delay: 160ms;
+}
+.eq-bar:nth-child(4) {
+  animation-delay: 120ms;
+}
+.eq-bar:nth-child(5) {
+  animation-delay: 200ms;
+}
+.eq-bar:nth-child(6) {
+  animation-delay: 40ms;
+}
+.eq-bar:nth-child(7) {
+  animation-delay: 100ms;
+}
+
+.eq-paused .eq-bar {
+  animation: none;
+  transform: scaleY(0.2);
+  opacity: 0.35;
+}
+
+.live-ring {
+  animation: live-pulse 2s ease-in-out infinite;
+}
+
+.vinyl-spinning {
+  animation: vinyl-spin 8s linear infinite;
+}
+
+.ticker-track {
+  animation: ticker 28s linear infinite;
+}
+
+.grain-overlay::after {
+  content: "";
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  opacity: 0.04;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  animation: grain 8s steps(10) infinite;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--black);
+  color: var(--off-white);
+  font-family: var(--font-raleway), system-ui, sans-serif;
+  font-weight: 300;
+}
+
+::selection {
+  background: rgba(196, 128, 106, 0.35);
+  color: var(--off-white);
+}
+
+@keyframes mood-chip-pulse {
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
+    box-shadow:
+      0 0 0 0 rgba(196, 128, 106, 0.35),
+      inset 0 0 0 1px rgba(255, 255, 255, 0.02);
+  }
+  50% {
+    transform: translateY(-1px) scale(1.03);
+    box-shadow:
+      0 0 0 5px rgba(196, 128, 106, 0),
+      0 0 24px rgba(196, 128, 106, 0.45),
+      inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+  }
+}
+
+.mood-chip {
+  position: relative;
+  overflow: hidden;
+}
+
+.mood-chip::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 220ms ease;
+  pointer-events: none;
+}
+
+.mood-chip.is-active {
+  animation: mood-chip-pulse 1.7s ease-in-out infinite;
+  animation-duration: calc(1.65s - var(--chip-sync, 0) * 0.55s);
+  filter: saturate(calc(1 + var(--chip-sync, 0) * 0.45))
+    brightness(calc(1 + var(--chip-sync, 0) * 0.08));
+}
+
+.mood-chip.warm::after {
+  background: linear-gradient(135deg, rgba(232, 196, 184, 0.28), transparent 68%);
+}
+
+.mood-chip.peak::after {
+  background: radial-gradient(circle at 50% 42%, rgba(196, 128, 106, 0.34), transparent 70%);
+}
+
+.mood-chip.after::after {
+  background: linear-gradient(
+    135deg,
+    rgba(186, 119, 97, 0.42),
+    rgba(132, 83, 152, 0.26)
+  );
+}
+
+.mood-chip.is-active::after {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mood-chip.is-active {
+    animation: none;
+  }
+}
