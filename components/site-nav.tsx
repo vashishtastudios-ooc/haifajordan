@@ -3,12 +3,7 @@
 import { useEffect, useState } from "react";
 
 const links = [
-  { href: "#story", label: "Story" },
-  { href: "#milestones", label: "Milestones" },
-  { href: "#visuals", label: "Film" },
-  { href: "#music", label: "The Mood" },
-  { href: "#live", label: "Live" },
-  { href: "/book", label: "Book" },
+  { href: "/book", label: "Book Now" },
 ];
 
 export function SiteNav() {
@@ -28,7 +23,7 @@ export function SiteNav() {
       <header className="fixed top-0 right-0 left-0 z-50 border-b border-[rgba(196,128,106,0.12)] bg-[#080808]/90 px-6 py-2.5 backdrop-blur-md md:px-10 md:py-4">
         <div className="flex items-center justify-between gap-4">
           <a
-            href="#"
+            href="/"
             className="flex min-w-0 shrink items-center gap-2.5"
             onClick={() => setOpen(false)}
             aria-label="Haifa Live home"

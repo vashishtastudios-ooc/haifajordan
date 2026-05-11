@@ -1,3 +1,8 @@
+"use client";
+
+import { AnimatedBeam } from "@/components/ui/animated-beam";
+import { useRef } from "react";
+
 const items = [
   {
     year: "15",
@@ -47,16 +52,54 @@ const items = [
 ];
 
 export function TimelineSection() {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const dotRefs = useRef<(HTMLSpanElement | null)[]>(
+    Array.from({ length: items.length }, () => null),
+  );
+
+  const endpointRefs = useRef(
+    items.map((_, i) => ({
+      get current(): HTMLSpanElement | null {
+        return dotRefs.current[i] ?? null;
+      },
+    })),
+  ).current;
+
   return (
     <section id="milestones" className="bg-[#1c1918] px-6 py-24 md:px-10 md:py-28">
-      <div className="mx-auto max-w-3xl">
-        <p className="section-label mb-16 text-[9px] font-semibold tracking-[0.35em] text-[#C4806A] uppercase">
+      <div ref={containerRef} className="relative mx-auto max-w-3xl">
+        <div className="pointer-events-none absolute inset-0 z-0 min-h-full">
+          {items.slice(0, -1).map((_, i) => (
+            <AnimatedBeam
+              key={`${items[i].year}-${items[i + 1].year}`}
+              containerRef={containerRef}
+              fromRef={endpointRefs[i]}
+              toRef={endpointRefs[i + 1]}
+              curvature={8}
+              duration={8.5}
+              dotted
+              dotSpacing={6}
+              pathColor="rgba(196,128,106,0.35)"
+              pathOpacity={0.4}
+              pathWidth={2}
+              gradientStartColor="#E8C4B8"
+              gradientStopColor="#F5F0EE"
+            />
+          ))}
+        </div>
+
+        <p className="section-label relative z-[1] mb-16 text-[9px] font-semibold tracking-[0.35em] text-[#C4806A] uppercase">
           Career milestones
         </p>
-        <ul className="relative border-l border-[rgba(196,128,106,0.2)] pl-8 md:pl-12">
-          {items.map((it) => (
+        <ul className="relative z-[1] border-l border-[rgba(196,128,106,0.2)] pl-8 md:pl-12">
+          {items.map((it, i) => (
             <li key={it.year} className="relative mb-14 last:mb-0">
-              <span className="absolute -left-[5px] top-1.5 h-2 w-2 rounded-full bg-[#C4806A] shadow-[0_0_12px_rgba(196,128,106,0.6)]" />
+              <span
+                ref={(el) => {
+                  dotRefs.current[i] = el;
+                }}
+                className="absolute top-1.5 -left-[5px] z-[2] h-2 w-2 rounded-full bg-[#C4806A] shadow-[0_0_12px_rgba(196,128,106,0.6)]"
+              />
               <div className="grid gap-6 md:grid-cols-[100px_1fr] md:gap-10">
                 <p className="font-display text-[26px] leading-none font-normal text-[#C4806A]">
                   {it.year}
