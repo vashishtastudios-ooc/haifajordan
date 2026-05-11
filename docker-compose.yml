@@ -1,0 +1,16 @@
+services:
+  haifajordan_app:
+    build: .
+    container_name: haifajordan_app
+
+    restart: unless-stopped
+
+    expose:
+      - "3000"
+
+    networks:
+      - web
+
+networks:
+  web:
+    external: true
