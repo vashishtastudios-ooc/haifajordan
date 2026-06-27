@@ -47,7 +47,7 @@ const items = [
   {
     year: "2026",
     title: "Quantize — \"The Mood\"",
-    desc: "Written by Haifa Jordan. Ronnie Herel & Kevin [TBC] on DJ Spen's Quantize. Mi-Soul playlist. Full release 21 May 2026.",
+    desc: "Written by Haifa Jordan. Ronnie Herel & Kevin [TBC] on DJ Spen's Quantize. Mi-Soul playlist. Out now on Quantize Recordings.",
   },
 ];
 

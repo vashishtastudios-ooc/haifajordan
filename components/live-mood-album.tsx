@@ -6,26 +6,95 @@ import { SITE_MEDIA } from "@/lib/site-media";
 import { THE_MOOD_TRACKS } from "@/lib/the-mood-audio";
 import { getMoodStreamOutlets } from "@/lib/the-mood-stream-links";
 
+/**
+ * Genre EQ presets — like a car-stereo equalizer. Each preset sets real
+ * BiquadFilter gains (dB) + a makeup gain multiplier, plus the visual layers.
+ */
 const moods = [
   {
-    id: "warm",
-    label: "Warm-up",
-    blurb: "Lights low, bass warming the boards — the room leans in before the drop.",
-    glow: "rgba(232,196,184,0.35)",
+    id: "flat",
+    label: "Flat",
+    blurb: "Studio-honest — no colour, just the master as it was mixed.",
+    bass: 0,
+    mid: 0,
+    treble: 0,
+    gain: 1,
+    glow: "rgba(196,128,106,0.35)",
+    barGradient: "linear-gradient(to top, #A0604A, #E8C4B8)",
+    intensity: 0.78,
+    sectionBg:
+      "radial-gradient(ellipse 72% 55% at 50% 0%, rgba(196,128,106,0.12), transparent 70%)",
+    coverTint:
+      "radial-gradient(circle at 50% 42%, rgba(232,196,184,0.22), transparent 70%)",
   },
   {
-    id: "peak",
-    label: "Peak floor",
-    blurb: "Hands up, kick forward — this is the pocket where the night earns its name.",
-    glow: "rgba(196,128,106,0.55)",
+    id: "rock",
+    label: "Rock",
+    blurb: "Mid-forward and crunchy — guitars bite, vocals push to the front.",
+    bass: 5,
+    mid: 3,
+    treble: 5,
+    gain: 1.1,
+    glow: "rgba(196,128,106,0.5)",
+    barGradient: "linear-gradient(to top, #A0604A, #C4806A, #F5D9CC)",
+    intensity: 0.95,
+    sectionBg:
+      "radial-gradient(ellipse 82% 58% at 50% 0%, rgba(196,128,106,0.18), transparent 72%)",
+    coverTint:
+      "radial-gradient(circle at 50% 45%, rgba(196,128,106,0.32), transparent 68%)",
   },
   {
-    id: "after",
-    label: "Afterglow",
-    blurb: "Smoke in the vocal, ride on the hats — the kind of finish that follows you home.",
-    glow: "rgba(160,96,74,0.45)",
+    id: "beats",
+    label: "Beats",
+    blurb: "Sub-heavy — the low end you feel in your chest before you hear it.",
+    bass: 9,
+    mid: -2,
+    treble: 2,
+    gain: 1.15,
+    glow: "rgba(160,96,74,0.55)",
+    barGradient: "linear-gradient(to top, #784A8A, #A0604A, #E8C4B8)",
+    intensity: 1.05,
+    sectionBg:
+      "radial-gradient(ellipse 80% 60% at 50% 0%, rgba(120,74,138,0.2), transparent 72%)",
+    coverTint:
+      "linear-gradient(135deg, rgba(120,74,138,0.3), rgba(160,96,74,0.3))",
+  },
+  {
+    id: "party",
+    label: "Party",
+    blurb: "Smile curve — boosted lows and highs, built for a loud room.",
+    bass: 6,
+    mid: 1,
+    treble: 6,
+    gain: 1.2,
+    glow: "rgba(232,196,184,0.55)",
+    barGradient: "linear-gradient(to top, #C4806A, #E8C4B8, #FFFFFF)",
+    intensity: 1.12,
+    sectionBg:
+      "radial-gradient(ellipse 88% 62% at 50% 0%, rgba(232,196,184,0.22), transparent 72%)",
+    coverTint:
+      "radial-gradient(circle at 50% 45%, rgba(245,217,204,0.4), transparent 66%)",
+  },
+  {
+    id: "chaos",
+    label: "Out of Control",
+    blurb: "Everything maxed — slammed bass and treble, pinned to the edge.",
+    bass: 11,
+    mid: 0,
+    treble: 9,
+    gain: 1.35,
+    glow: "rgba(196,128,106,0.7)",
+    barGradient: "linear-gradient(to top, #784A8A, #C4806A, #F5D9CC)",
+    intensity: 1.25,
+    sectionBg:
+      "radial-gradient(ellipse 95% 65% at 50% 0%, rgba(196,128,106,0.26), transparent 74%)",
+    coverTint:
+      "linear-gradient(135deg, rgba(196,128,106,0.42), rgba(120,74,138,0.32))",
   },
 ] as const;
+
+const BAR_COUNT = 24;
+const USABLE_BINS = 48;
 
 function scaleRgbaAlpha(rgba: string, factor: number) {
   const m = rgba.match(
@@ -45,37 +114,26 @@ function formatTime(seconds: number) {
   return `${m}:${String(s).padStart(2, "0")}`;
 }
 
-function useCountdown(target: Date) {
-  /** `null` until after mount — avoids SSR/client `Date.now()` mismatch (hydration). */
-  const [now, setNow] = useState<number | null>(null);
-
-  useEffect(() => {
-    const tick = () => setNow(Date.now());
-    tick();
-    const t = setInterval(tick, 1000);
-    return () => clearInterval(t);
-  }, []);
-
-  if (now === null) {
-    return { pending: true as const, d: 0, h: 0, m: 0, s: 0, past: false };
-  }
-
-  const diff = Math.max(0, target.getTime() - now);
-  const s = Math.floor(diff / 1000) % 60;
-  const m = Math.floor(diff / 60000) % 60;
-  const h = Math.floor(diff / 3600000) % 24;
-  const d = Math.floor(diff / 86400000);
-  return { pending: false as const, d, h, m, s, past: diff === 0 };
-}
-
 export function LiveMoodAlbum() {
-  const fullRelease = new Date("2026-05-21T23:59:59+01:00");
-  const cd = useCountdown(fullRelease);
-
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const progressRef = useRef<HTMLDivElement | null>(null);
   const dockProgressRef = useRef<HTMLDivElement | null>(null);
   const resumeAfterTrackChangeRef = useRef(false);
+
+  const audioCtxRef = useRef<AudioContext | null>(null);
+  const analyserRef = useRef<AnalyserNode | null>(null);
+  const sourceRef = useRef<MediaElementAudioSourceNode | null>(null);
+  const sourcedElRef = useRef<HTMLAudioElement | null>(null);
+  const freqDataRef = useRef<Uint8Array<ArrayBuffer> | null>(null);
+  const bassRef = useRef<BiquadFilterNode | null>(null);
+  const midRef = useRef<BiquadFilterNode | null>(null);
+  const trebleRef = useRef<BiquadFilterNode | null>(null);
+  const makeupRef = useRef<GainNode | null>(null);
+  const eqHeadRef = useRef<AudioNode | null>(null);
+  const barRefs = useRef<(HTMLSpanElement | null)[]>([]);
+  const intensityRef = useRef(1);
+  const [analyserReady, setAnalyserReady] = useState(false);
+  const [level, setLevel] = useState(0);
 
   const [moodIndex, setMoodIndex] = useState(1);
   const [roomCount, setRoomCount] = useState(1842);
@@ -93,11 +151,112 @@ export function LiveMoodAlbum() {
   const mood = moods[moodIndex];
   const track = THE_MOOD_TRACKS[activeTrack];
 
+  const ensureGraph = useCallback(() => {
+    const a = audioRef.current;
+    if (!a) return;
+    try {
+      if (!audioCtxRef.current) {
+        const Ctx =
+          window.AudioContext ||
+          (window as unknown as { webkitAudioContext?: typeof AudioContext })
+            .webkitAudioContext;
+        if (!Ctx) return;
+        const ctx = new Ctx();
+
+        const bass = ctx.createBiquadFilter();
+        bass.type = "lowshelf";
+        bass.frequency.value = 120;
+
+        const mid = ctx.createBiquadFilter();
+        mid.type = "peaking";
+        mid.frequency.value = 1000;
+        mid.Q.value = 0.9;
+
+        const treble = ctx.createBiquadFilter();
+        treble.type = "highshelf";
+        treble.frequency.value = 5000;
+
+        const makeup = ctx.createGain();
+        makeup.gain.value = 1;
+
+        // Safety limiter so big EQ boosts stay loud without harsh clipping.
+        const comp = ctx.createDynamicsCompressor();
+        comp.threshold.value = -10;
+        comp.knee.value = 8;
+        comp.ratio.value = 4;
+        comp.attack.value = 0.003;
+        comp.release.value = 0.25;
+
+        const analyser = ctx.createAnalyser();
+        analyser.fftSize = 128;
+        analyser.smoothingTimeConstant = 0.8;
+
+        // source -> bass -> mid -> treble -> makeup -> compressor -> analyser -> out
+        bass.connect(mid);
+        mid.connect(treble);
+        treble.connect(makeup);
+        makeup.connect(comp);
+        comp.connect(analyser);
+        analyser.connect(ctx.destination);
+
+        audioCtxRef.current = ctx;
+        analyserRef.current = analyser;
+        bassRef.current = bass;
+        midRef.current = mid;
+        trebleRef.current = treble;
+        makeupRef.current = makeup;
+        eqHeadRef.current = bass;
+        freqDataRef.current = new Uint8Array(
+          new ArrayBuffer(analyser.frequencyBinCount),
+        );
+      }
+      const ctx = audioCtxRef.current;
+      const head = eqHeadRef.current;
+      if (!ctx || !head) return;
+
+      if (sourcedElRef.current !== a) {
+        try {
+          sourceRef.current?.disconnect();
+        } catch {
+          /* ignore */
+        }
+        const src = ctx.createMediaElementSource(a);
+        src.connect(head);
+        sourceRef.current = src;
+        sourcedElRef.current = a;
+      }
+      void ctx.resume();
+      setAnalyserReady(true);
+    } catch {
+      setAnalyserReady(false);
+    }
+  }, []);
+
+  const applyEq = useCallback(
+    (preset: (typeof moods)[number]) => {
+      const ctx = audioCtxRef.current;
+      if (!ctx) return;
+      const now = ctx.currentTime;
+      const tc = 0.08;
+      bassRef.current?.gain.setTargetAtTime(preset.bass, now, tc);
+      midRef.current?.gain.setTargetAtTime(preset.mid, now, tc);
+      trebleRef.current?.gain.setTargetAtTime(preset.treble, now, tc);
+      makeupRef.current?.gain.setTargetAtTime(preset.gain, now, tc);
+    },
+    [],
+  );
+
+  useEffect(() => {
+    if (!analyserReady) return;
+    applyEq(mood);
+  }, [analyserReady, mood, applyEq]);
+
   const togglePlay = useCallback(async () => {
     const a = audioRef.current;
     if (!a) return;
     if (a.paused) {
       setLoadError(false);
+      ensureGraph();
       try {
         await a.play();
       } catch {
@@ -107,7 +266,7 @@ export function LiveMoodAlbum() {
     } else {
       a.pause();
     }
-  }, []);
+  }, [ensureGraph]);
 
   const selectTrack = useCallback(
     (index: number) => {
@@ -145,11 +304,12 @@ export function LiveMoodAlbum() {
       return;
     }
     resumeAfterTrackChangeRef.current = false;
+    ensureGraph();
     void a.play().catch(() => {
       setLoadError(true);
       setIsPlaying(false);
     });
-  }, [activeTrack]);
+  }, [activeTrack, ensureGraph]);
 
   const cycleMood = useCallback(() => {
     setMoodIndex((i) => (i + 1) % moods.length);
@@ -175,24 +335,94 @@ export function LiveMoodAlbum() {
       ? Math.min(100, (currentTime / duration) * 100)
       : 0;
 
-  /** Sync visual pulse to playback clock (proxy beat when track is running). */
+  useEffect(() => {
+    intensityRef.current = mood.intensity;
+  }, [mood.intensity]);
+
+  const live = analyserReady && isPlaying;
+
+  /** Drive bars from real frequency data while the analyser is live. */
+  useEffect(() => {
+    const bars = barRefs.current;
+    if (!live) {
+      bars.forEach((el) => {
+        if (el) el.style.transform = "";
+      });
+      setLevel(0);
+      return;
+    }
+
+    let raf = 0;
+    let lastState = 0;
+    const loop = (t: number) => {
+      const analyser = analyserRef.current;
+      const data = freqDataRef.current;
+      if (analyser && data) {
+        analyser.getByteFrequencyData(data);
+        const intensity = intensityRef.current;
+        let sum = 0;
+        for (let i = 0; i < BAR_COUNT; i++) {
+          const bin = Math.floor((i / BAR_COUNT) * USABLE_BINS);
+          const v = data[bin] / 255;
+          sum += v;
+          const el = bars[i];
+          if (el) {
+            const h = Math.max(0.06, Math.min(1, v * intensity * 1.25));
+            el.style.transform = `scaleY(${h})`;
+          }
+        }
+        if (t - lastState > 90) {
+          lastState = t;
+          setLevel(sum / BAR_COUNT);
+        }
+      }
+      raf = requestAnimationFrame(loop);
+    };
+    raf = requestAnimationFrame(loop);
+    return () => cancelAnimationFrame(raf);
+  }, [live]);
+
+  useEffect(() => {
+    return () => {
+      try {
+        sourceRef.current?.disconnect();
+        bassRef.current?.disconnect();
+        midRef.current?.disconnect();
+        trebleRef.current?.disconnect();
+        makeupRef.current?.disconnect();
+        analyserRef.current?.disconnect();
+        void audioCtxRef.current?.close();
+      } catch {
+        /* ignore */
+      }
+    };
+  }, []);
+
+  /** Proxy beat from the playback clock — fallback when Web Audio is unavailable. */
   const musicPulse = useMemo(() => {
     if (!isPlaying) return 0;
     return (Math.sin(currentTime * Math.PI * 2 * 1.9) + 1) / 2;
   }, [currentTime, isPlaying]);
 
+  const effectivePulse = live ? level : musicPulse;
+
   const deckShadow = useMemo(() => {
-    const spread = Math.round(80 + musicPulse * 34);
-    const lift = Math.round(-20 - musicPulse * 8);
-    const glow = scaleRgbaAlpha(mood.glow, 1 + musicPulse * 0.75);
+    const spread = Math.round(80 + effectivePulse * 60);
+    const lift = Math.round(-20 - effectivePulse * 14);
+    const glow = scaleRgbaAlpha(mood.glow, 1 + effectivePulse * 1.1);
     return `0 0 ${spread}px ${lift}px ${glow}`;
-  }, [mood.glow, musicPulse]);
+  }, [mood.glow, effectivePulse]);
 
   return (
     <section
       id="music"
-      className="scroll-mt-24 border-t border-[rgba(196,128,106,0.12)] bg-[#1c1918] px-6 py-24 md:px-10 md:py-28"
+      className="relative scroll-mt-24 overflow-hidden border-t border-[rgba(196,128,106,0.12)] bg-[#1c1918] px-6 py-24 md:px-10 md:py-28"
     >
+      <div
+        className="pointer-events-none absolute inset-0 z-0 transition-[background] duration-700 ease-out"
+        style={{ background: mood.sectionBg }}
+        aria-hidden
+      />
       <audio
         key={activeTrack}
         ref={audioRef}
@@ -225,7 +455,7 @@ export function LiveMoodAlbum() {
         ))}
       </audio>
 
-      <div className="mx-auto max-w-[820px]">
+      <div className="relative z-10 mx-auto max-w-[820px]">
         <div className="mb-12 flex flex-col items-start justify-between gap-6 md:flex-row md:items-end">
           <div>
             <p className="mb-3 inline-flex items-center gap-2 rounded-full border border-[rgba(196,128,106,0.35)] bg-[#080808]/80 px-3 py-1 text-[8px] font-bold tracking-[0.25em] text-[#E8C4B8] uppercase">
@@ -281,7 +511,7 @@ export function LiveMoodAlbum() {
               <div className="absolute inset-0 z-0">
                 <MediaImage
                   candidates={SITE_MEDIA.albumCoverCandidates}
-                  alt="The Mood — single artwork"
+                  alt={SITE_MEDIA.albumCoverAlt}
                   fill
                   sizes="320px"
                   className="h-full w-full"
@@ -292,6 +522,11 @@ export function LiveMoodAlbum() {
                 />
               </div>
               <div className="absolute inset-0 z-[1] bg-[radial-gradient(ellipse_at_40%_40%,rgba(196,128,106,0.12),transparent_55%)]" />
+              <div
+                className="absolute inset-0 z-[1] mix-blend-overlay transition-[background,opacity] duration-700 ease-out"
+                style={{ background: mood.coverTint, opacity: 0.85 + effectivePulse * 0.15 }}
+                aria-hidden
+              />
               <div
                 className={`absolute inset-[18%] z-[2] rounded-full border border-[rgba(196,128,106,0.2)] bg-[#0d0a09]/75 backdrop-blur-[2px] ${isPlaying ? "vinyl-spinning" : ""}`}
               />
@@ -308,16 +543,36 @@ export function LiveMoodAlbum() {
               </span>
             </button>
 
-            <div
-              className={`mt-8 flex h-14 w-full max-w-[280px] items-end justify-center gap-1.5 px-4 ${isPlaying ? "" : "eq-paused"}`}
-            >
-              {Array.from({ length: 7 }).map((_, i) => (
-                <span
-                  key={i}
-                  className="eq-bar w-1.5 rounded-full bg-gradient-to-t from-[#A0604A] to-[#E8C4B8]"
-                  style={{ height: `${28 + ((i * 17) % 44)}px` }}
-                />
-              ))}
+            <div className="mt-8 w-full max-w-[280px]">
+              <div className="flex h-16 items-end justify-center gap-[3px]">
+                {Array.from({ length: BAR_COUNT }).map((_, i) => {
+                  const barClass = live
+                    ? ""
+                    : isPlaying
+                      ? "is-css"
+                      : "is-idle";
+                  return (
+                    <span
+                      key={i}
+                      ref={(el) => {
+                        barRefs.current[i] = el;
+                      }}
+                      className={`eq-bar2 h-full flex-1 rounded-full ${barClass}`}
+                      style={{
+                        background: mood.barGradient,
+                        animationDelay: live ? undefined : `${(i * 47) % 620}ms`,
+                      }}
+                    />
+                  );
+                })}
+              </div>
+              <p
+                className="mt-3 text-center text-[8px] tracking-[0.28em] text-[rgba(245,240,238,0.4)] uppercase transition-opacity duration-300"
+                style={{ opacity: isPlaying ? 0 : 1 }}
+                aria-hidden={isPlaying}
+              >
+                Press play to feel it
+              </p>
             </div>
           </div>
 
@@ -407,47 +662,29 @@ export function LiveMoodAlbum() {
 
             <div className="mb-8 rounded border border-[rgba(196,128,106,0.15)] bg-[#0d0c0b] p-4">
               <p className="mb-2 text-[8px] font-semibold tracking-[0.25em] text-[#C4806A] uppercase">
-                Full release countdown
+                Release status
               </p>
-              {cd.pending ? (
-                <p
-                  className="font-mono text-lg tracking-widest text-[rgba(245,240,238,0.22)]"
-                  aria-busy="true"
-                >
-                  —d —h —m —s
-                </p>
-              ) : cd.past ? (
-                <p className="font-display text-xl text-[#E8C4B8] italic">Out now</p>
-              ) : (
-                <p className="font-mono text-lg tracking-widest text-[#F5F0EE]">
-                  {String(cd.d).padStart(2, "0")}d {String(cd.h).padStart(2, "0")}h{" "}
-                  {String(cd.m).padStart(2, "0")}m {String(cd.s).padStart(2, "0")}s
-                </p>
-              )}
+              <p className="font-display text-xl text-[#E8C4B8] italic">Out now</p>
               <p className="mt-1 text-[11px] text-[rgba(245,240,238,0.4)]">
-                Target: 21 May 2026 (UK)
+                Quantize Recordings · Mi-Soul playlist
               </p>
             </div>
 
             <div className="mb-8">
-              <p className="mb-3 text-[8px] font-semibold tracking-[0.25em] text-[#C4806A] uppercase">
-                Set the room
-              </p>
+              <div className="mb-3 flex items-center justify-between gap-3">
+                <p className="text-[8px] font-semibold tracking-[0.25em] text-[#C4806A] uppercase">
+                  Tune the room — EQ
+                </p>
+                <span className="text-[8px] tracking-[0.2em] text-[rgba(245,240,238,0.35)] uppercase">
+                  {analyserReady ? "Live EQ" : "Press play"}
+                </span>
+              </div>
               <div className="flex flex-wrap gap-2">
                 {moods.map((m, i) => {
                   const isActive = moodIndex === i;
-                  const tone =
-                    m.id === "warm"
-                      ? isActive
-                        ? "border-[#E8C4B8] bg-[rgba(232,196,184,0.2)] text-[#F5F0EE] shadow-[0_0_22px_rgba(232,196,184,0.3)]"
-                        : "border-[rgba(232,196,184,0.35)] text-[rgba(245,240,238,0.72)] hover:border-[#E8C4B8] hover:text-[#F5F0EE]"
-                      : m.id === "peak"
-                        ? isActive
-                          ? "border-[#C4806A] bg-[rgba(196,128,106,0.26)] text-[#F5F0EE] shadow-[0_0_26px_rgba(196,128,106,0.45)]"
-                          : "border-[rgba(196,128,106,0.35)] text-[rgba(245,240,238,0.7)] hover:border-[#C4806A] hover:text-[#F5F0EE]"
-                        : isActive
-                          ? "border-[#BA7761] bg-[linear-gradient(135deg,rgba(186,119,97,0.28),rgba(120,74,138,0.22))] text-[#F5F0EE] shadow-[0_0_28px_rgba(186,119,97,0.58)]"
-                          : "border-[rgba(186,119,97,0.42)] text-[rgba(244,229,241,0.82)] hover:border-[#BA7761] hover:text-[#F5F0EE]";
+                  const tone = isActive
+                    ? "border-[#C4806A] bg-[rgba(196,128,106,0.24)] text-[#F5F0EE] shadow-[0_0_26px_rgba(196,128,106,0.45)]"
+                    : "border-[rgba(196,128,106,0.3)] text-[rgba(245,240,238,0.62)] hover:border-[#C4806A] hover:text-[#F5F0EE]";
                   return (
                     <button
                       key={m.id}
@@ -456,7 +693,7 @@ export function LiveMoodAlbum() {
                       className={`mood-chip ${m.id} ${isActive ? "is-active" : ""} ${tone} rounded-full border px-4 py-2 text-[9px] font-semibold tracking-[0.15em] uppercase transition-all duration-300`}
                       style={
                         {
-                          "--chip-sync": musicPulse.toFixed(3),
+                          "--chip-sync": effectivePulse.toFixed(3),
                         } as CSSProperties
                       }
                     >
@@ -469,9 +706,40 @@ export function LiveMoodAlbum() {
                   onClick={cycleMood}
                   className="rounded-full border border-dashed border-[rgba(196,128,106,0.35)] px-4 py-2 text-[9px] font-medium tracking-[0.12em] text-[#D4A090] uppercase hover:bg-[rgba(196,128,106,0.08)]"
                 >
-                  Cycle vibe
+                  Next preset
                 </button>
               </div>
+
+              <div className="mt-4 grid grid-cols-3 gap-2">
+                {(
+                  [
+                    ["Bass", mood.bass],
+                    ["Mid", mood.mid],
+                    ["Treble", mood.treble],
+                  ] as const
+                ).map(([band, db]) => (
+                  <div
+                    key={band}
+                    className="rounded border border-[rgba(196,128,106,0.15)] bg-[#0d0c0b] px-3 py-2"
+                  >
+                    <p className="mb-1.5 text-[7px] font-semibold tracking-[0.22em] text-[#C4806A] uppercase">
+                      {band}
+                    </p>
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="font-mono text-[11px] text-[#F5F0EE]">
+                        {db > 0 ? `+${db}` : db} dB
+                      </span>
+                      <span className="relative h-1 w-10 overflow-hidden rounded-full bg-[rgba(245,240,238,0.1)]">
+                        <span
+                          className="absolute top-0 left-1/2 h-full -translate-x-1/2 rounded-full bg-gradient-to-r from-[#A0604A] to-[#E8C4B8] transition-[width] duration-500"
+                          style={{ width: `${Math.min(100, Math.abs(db) * 8)}%` }}
+                        />
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
               <p className="mt-3 text-[13px] leading-relaxed text-[rgba(245,240,238,0.55)] italic">
                 {mood.blurb}
               </p>
@@ -529,8 +797,7 @@ export function LiveMoodAlbum() {
                 ["Written by", "Haifa Jordan"],
                 ["Produced by", "Ronnie Herel & Kevin [TBC]"],
                 ["Label", "Quantize Recordings"],
-                ["Pre-release", "May 1, 2026"],
-                ["Full release", "May 21, 2026"],
+                ["Released", "May 2026"],
                 ["Radio", "Mi-Soul DAB — playlisted"],
               ].map(([a, b]) => (
                 <div

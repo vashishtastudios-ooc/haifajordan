@@ -1,5 +1,15 @@
+import type { Metadata } from "next";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteNav } from "@/components/site-nav";
+
+export const metadata: Metadata = {
+  title: "Book Now",
+  description:
+    "Book Haifa Jordan for weddings, corporate events, private celebrations and destination experiences. Premium soul & house vocalist — London, UK & international. Send an enquiry.",
+  alternates: {
+    canonical: "/book",
+  },
+};
 
 const eventTypes = [
   "Wedding",

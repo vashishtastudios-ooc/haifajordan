@@ -151,6 +151,48 @@
   opacity: 0.35;
 }
 
+@keyframes eq-pulse {
+  0%,
+  100% {
+    transform: scaleY(0.18);
+  }
+  50% {
+    transform: scaleY(1);
+  }
+}
+
+@keyframes eq-idle {
+  0%,
+  100% {
+    transform: scaleY(0.1);
+  }
+  50% {
+    transform: scaleY(0.24);
+  }
+}
+
+.eq-bar2 {
+  transform-origin: bottom center;
+  transform: scaleY(0.12);
+  will-change: transform;
+  transition: background 700ms ease-out;
+}
+
+.eq-bar2.is-css {
+  animation: eq-pulse 0.58s ease-in-out infinite;
+}
+
+.eq-bar2.is-idle {
+  animation: eq-idle 2.4s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .eq-bar2.is-css,
+  .eq-bar2.is-idle {
+    animation: none;
+  }
+}
+
 .live-ring {
   animation: live-pulse 2s ease-in-out infinite;
 }

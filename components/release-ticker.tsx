@@ -4,7 +4,7 @@ const items = [
   "Ronnie Herel ft. Haifa",
   "Quantize Recordings",
   "Mi-Soul rotation",
-  "Full drop — 21 May 2026",
+  "Out now — Quantize Recordings",
 ];
 
 export function ReleaseTicker() {

@@ -1,5 +1,11 @@
 import type { Metadata } from "next";
 import { Playfair_Display, Raleway } from "next/font/google";
+import {
+  SITE_DESCRIPTION,
+  SITE_KEYWORDS,
+  SITE_TITLE,
+  SITE_URL,
+} from "@/lib/site-seo";
 import "./globals.css";
 
 const playfair = Playfair_Display({
@@ -16,12 +22,38 @@ const raleway = Raleway({
 });
 
 export const metadata: Metadata = {
-  title: "Haifa Live — Vocalist · Songwriter · Stage",
-  description:
-    "Haifa Jordan — London soul, global stages. New release The Mood on Quantize Recordings. Bookings and live experience.",
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: SITE_TITLE,
+    template: "%s | Haifa Jordan",
+  },
+  description: SITE_DESCRIPTION,
+  keywords: SITE_KEYWORDS,
+  authors: [{ name: "Haifa Jordan" }],
+  creator: "Haifa Jordan",
   openGraph: {
-    title: "Haifa Live",
-    description: "When the lights drop, the voice takes over.",
+    type: "website",
+    locale: "en_GB",
+    url: SITE_URL,
+    siteName: "Haifa Jordan",
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
+  alternates: {
+    canonical: SITE_URL,
+  },
+  icons: {
+    icon: "/haifa/logohaifalive.png",
+    apple: "/haifa/logohaifalive.png",
   },
 };
 
@@ -32,7 +64,7 @@ export default function RootLayout({
 }>) {
   return (
     <html
-      lang="en"
+      lang="en-GB"
       className={`${playfair.variable} ${raleway.variable} h-full antialiased`}
     >
       <body className="font-body min-h-full overflow-x-hidden">

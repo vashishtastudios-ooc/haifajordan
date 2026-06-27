@@ -31,7 +31,7 @@ export function StorySection() {
               clubs before the industry even had her name on a call sheet.
             </p>
             <p className="mb-7 text-[15px] leading-[2] text-[rgba(245,240,238,0.72)]">
-              Suburban London, fifteen years old: she did not discover UK house and
+              Suburban London, fifteen years old: Haifa did not discover UK house and
               garage from the sidelines — she stepped straight into the booth. Freestyle
               vocals on the capital&apos;s sharpest circuit forged a reputation for raw,
               instinctive presence and a voice that could hush a packed floor mid-sentence.

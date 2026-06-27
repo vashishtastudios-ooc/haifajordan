@@ -58,7 +58,7 @@ export function Hero() {
         >
           <MediaImage
             candidates={SITE_MEDIA.logoCandidates}
-            alt="HaifaLive logo"
+            alt={SITE_MEDIA.logoAlt}
             fill
             sizes="168px"
             priority
