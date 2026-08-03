@@ -96,6 +96,17 @@ export function Hero() {
           </span>
         </p>
         <div
+          className="mt-10 animate-rise"
+          style={{ animationDelay: "1.05s", opacity: 0 }}
+        >
+          <a
+            href="/book"
+            className="inline-flex items-center justify-center bg-gradient-to-br from-[#C4806A] to-[#A0604A] px-11 py-4 text-[9px] font-bold tracking-[0.35em] text-[#080808] uppercase transition-transform hover:scale-[1.02] active:scale-[0.98]"
+          >
+            Book Now
+          </a>
+        </div>
+        <div
           className="mt-14 flex flex-wrap justify-center gap-10 md:gap-14 animate-rise"
           style={{ animationDelay: "1.15s", opacity: 0 }}
         >

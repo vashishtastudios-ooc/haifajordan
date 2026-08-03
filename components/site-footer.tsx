@@ -19,7 +19,7 @@ export function SiteFooter({ className = "" }: { className?: string }) {
           Instagram
         </a>
         <a
-          href="https://www.haifalive.com"
+          href="https://singitentertainment.com/"
           target="_blank"
           rel="noopener noreferrer"
           className="text-[rgba(245,240,238,0.45)] transition-colors hover:text-[#D4A090]"

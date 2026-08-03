@@ -2,11 +2,6 @@
 
 import { useEffect, useState } from "react";
 
-const links = [
-  { href: "/about", label: "About" },
-  { href: "/book", label: "Book Now" },
-];
-
 export function SiteNav() {
   const [open, setOpen] = useState(false);
 
@@ -57,17 +52,23 @@ export function SiteNav() {
           </button>
 
           <nav className="hidden md:block" aria-label="Primary">
-            <ul className="flex flex-wrap justify-end gap-x-6 gap-y-2">
-              {links.map((l) => (
-                <li key={l.href}>
-                  <a
-                    href={l.href}
-                    className="text-[9px] font-medium tracking-[0.28em] text-[rgba(245,240,238,0.45)] uppercase transition-colors hover:text-[#D4A090]"
-                  >
-                    {l.label}
-                  </a>
-                </li>
-              ))}
+            <ul className="flex flex-wrap items-center justify-end gap-x-6 gap-y-2">
+              <li>
+                <a
+                  href="/about"
+                  className="text-[10px] font-medium tracking-[0.28em] text-[rgba(245,240,238,0.45)] uppercase transition-colors hover:text-[#D4A090]"
+                >
+                  About
+                </a>
+              </li>
+              <li>
+                <a
+                  href="/book"
+                  className="text-[11px] font-bold tracking-[0.28em] text-[#C4806A] uppercase transition-colors hover:text-[#E8C4B8]"
+                >
+                  Book Now
+                </a>
+              </li>
             </ul>
           </nav>
         </div>
@@ -83,17 +84,24 @@ export function SiteNav() {
         >
           <nav aria-label="Primary mobile">
             <ul className="flex flex-col gap-1">
-              {links.map((l) => (
-                <li key={l.href}>
-                  <a
-                    href={l.href}
-                    className="flex min-h-12 items-center rounded-md px-3 text-[13px] font-medium tracking-[0.12em] text-[#F5F0EE] uppercase transition-colors active:bg-[rgba(196,128,106,0.12)]"
-                    onClick={() => setOpen(false)}
-                  >
-                    {l.label}
-                  </a>
-                </li>
-              ))}
+              <li>
+                <a
+                  href="/about"
+                  className="flex min-h-12 items-center rounded-md px-3 text-[13px] font-medium tracking-[0.12em] text-[#F5F0EE] uppercase transition-colors active:bg-[rgba(196,128,106,0.12)]"
+                  onClick={() => setOpen(false)}
+                >
+                  About
+                </a>
+              </li>
+              <li>
+                <a
+                  href="/book"
+                  className="flex min-h-12 items-center rounded-md px-3 text-[15px] font-bold tracking-[0.12em] text-[#C4806A] uppercase transition-colors active:bg-[rgba(196,128,106,0.12)]"
+                  onClick={() => setOpen(false)}
+                >
+                  Book Now
+                </a>
+              </li>
             </ul>
           </nav>
         </div>
